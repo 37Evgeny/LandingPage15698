@@ -1,0 +1,11 @@
+/* Анимация появления снизу вверх */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px); /* Начинаем ниже на 50 пикселей */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);    /* Встаем на свое место */
+  }
+}

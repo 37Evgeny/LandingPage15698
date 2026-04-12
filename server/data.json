@@ -1,0 +1,252 @@
+[
+  {
+    "name": "Капучино Классик",
+    "pictures": "https://picsum.photos/seed/cappuccino1/500/400",
+    "description": "Классический кофейный напиток на основе эспрессо с густой молочной пенкой."
+  },
+  {
+    "name": "Флэт Уайт",
+    "pictures": "https://picsum.photos/seed/flatwhite2/500/400",
+    "description": "Насыщенный кофейный вкус: двойной эспрессо и немного взбитого молока."
+  },
+  {
+    "name": "Латте Макиато",
+    "pictures": "https://picsum.photos/seed/latte3/500/400",
+    "description": "Мягкий кофейный напиток с большим количеством горячего молока и легкой пеной."
+  },
+  {
+    "name": "Эспрессо",
+    "pictures": "https://picsum.photos/seed/espresso4/500/400",
+    "description": "Крепкий, насыщенный черный кофе для идеального начала дня."
+  },
+  {
+    "name": "Американо",
+    "pictures": "https://picsum.photos/seed/americano5/500/400",
+    "description": "Классический черный кофе, приготовленный путем добавления горячей воды в эспрессо."
+  },
+  {
+    "name": "Раф Классический",
+    "pictures": "https://picsum.photos/seed/raf6/500/400",
+    "description": "Нежный сливочно-кофейный напиток с добавлением ванильного сахара."
+  },
+  {
+    "name": "Мокачино",
+    "pictures": "https://picsum.photos/seed/mocha7/500/400",
+    "description": "Шоколадно-кофейный напиток со взбитыми сливками и какао."
+  },
+  {
+    "name": "Матча Латте",
+    "pictures": "https://picsum.photos/seed/matcha8/500/400",
+    "description": "Японский зеленый чай матча, взбитый с горячим кокосовым молоком."
+  },
+  {
+    "name": "Айс Латте",
+    "pictures": "https://picsum.photos/seed/icedlatte9/500/400",
+    "description": "Освежающий холодный кофе со льдом, молоком и карамельным сиропом."
+  },
+  {
+    "name": "Бамбл Кофе",
+    "pictures": "https://picsum.photos/seed/bumble10/500/400",
+    "description": "Яркий слоистый напиток из свежевыжатого апельсинового сока, карамели и эспрессо."
+  },
+  {
+    "name": "Домашний Лимонад",
+    "pictures": "https://picsum.photos/seed/lemonade11/500/400",
+    "description": "Освежающий лимонад со свежей клубникой, мятой и лаймом."
+  },
+  {
+    "name": "Апельсиновый Фреш",
+    "pictures": "https://picsum.photos/seed/juice12/500/400",
+    "description": "Свежевыжатый сок из отборных сладких апельсинов."
+  },
+  {
+    "name": "Смузи Тропик",
+    "pictures": "https://picsum.photos/seed/smoothie13/500/400",
+    "description": "Густой напиток из манго, маракуйи и банана. Заряд витаминов на весь день!"
+  },
+  {
+    "name": "Чай Сеньча",
+    "pictures": "https://picsum.photos/seed/sencha14/500/400",
+    "description": "Классический японский зеленый чай с мягким вкусом."
+  },
+  {
+    "name": "Ягодный Чай",
+    "pictures": "https://picsum.photos/seed/berrytea15/500/400",
+    "description": "Согревающий авторский чай с малиной, ежевикой и розмарином."
+  },
+  {
+    "name": "Классический Круассан",
+    "pictures": "https://picsum.photos/seed/croissant16/500/400",
+    "description": "Хрустящий французский рогалик из слоеного теста со сливочным маслом."
+  },
+  {
+    "name": "Миндальный Круассан",
+    "pictures": "https://picsum.photos/seed/almond17/500/400",
+    "description": "Круассан с нежным миндальным кремом, посыпанный лепестками миндаля."
+  },
+  {
+    "name": "Синнабон",
+    "pictures": "https://picsum.photos/seed/cinnabon18/500/400",
+    "description": "Горячая булочка с корицей, щедро политая сливочно-сырным кремом."
+  },
+  {
+    "name": "Шоколадный Маффин",
+    "pictures": "https://picsum.photos/seed/muffin19/500/400",
+    "description": "Кекс с кусочками темного бельгийского шоколада и жидким центром."
+  },
+  {
+    "name": "Эклер Ванильный",
+    "pictures": "https://picsum.photos/seed/eclair20/500/400",
+    "description": "Заварное пирожное с настоящим ванильным кремом и белой глазурью."
+  },
+  {
+    "name": "Брауни",
+    "pictures": "https://picsum.photos/seed/brownie21/500/400",
+    "description": "Влажный шоколадный десерт с грецкими орехами и шариком мороженого."
+  },
+  {
+    "name": "Макарун",
+    "pictures": "https://picsum.photos/seed/macaron22/500/400",
+    "description": "Изысканное французское пирожное на миндальной муке с ягодным ганашем."
+  },
+  {
+    "name": "Печенье с шоколадом",
+    "pictures": "https://picsum.photos/seed/cookie23/500/400",
+    "description": "Большое американское печенье с тающими кусочками шоколада."
+  },
+  {
+    "name": "Тарталетка с ягодами",
+    "pictures": "https://picsum.photos/seed/tartlet24/500/400",
+    "description": "Песочная корзинка с заварным кремом и свежей сезонной клубникой."
+  },
+  {
+    "name": "Пончик с глазурью",
+    "pictures": "https://picsum.photos/seed/donut25/500/400",
+    "description": "Пышный донат с розовой клубничной глазурью и цветной посыпкой."
+  },
+  {
+    "name": "Сырники",
+    "pictures": "https://picsum.photos/seed/syrniki26/500/400",
+    "description": "Нежные сырники из фермерского творога со сметаной и ягодным кюли."
+  },
+  {
+    "name": "Авокадо Тост",
+    "pictures": "https://picsum.photos/seed/avocado27/500/400",
+    "description": "Хрустящий злаковый хлеб с гуакамоле, яйцом пашот и слабосоленым лососем."
+  },
+  {
+    "name": "Яйцо Бенедикт",
+    "pictures": "https://picsum.photos/seed/benedict28/500/400",
+    "description": "Два яйца пашот на нежной бриоши с беконом и голландским соусом."
+  },
+  {
+    "name": "Овсяная Каша",
+    "pictures": "https://picsum.photos/seed/oatmeal29/500/400",
+    "description": "Каша на кокосовом молоке с карамелизованным бананом и орехами пекан."
+  },
+  {
+    "name": "Блинчики",
+    "pictures": "https://picsum.photos/seed/pancakes30/500/400",
+    "description": "Тонкие домашние блинчики со сгущенным молоком или домашним вареньем."
+  },
+  {
+    "name": "Бельгийские Вафли",
+    "pictures": "https://picsum.photos/seed/waffles31/500/400",
+    "description": "Пышные вафли со взбитыми сливками, кленовым сиропом и свежими ягодами."
+  },
+  {
+    "name": "Английский Завтрак",
+    "pictures": "https://picsum.photos/seed/english32/500/400",
+    "description": "Сытный завтрак: глазунья, фасоль, жареные колбаски, бекон и тосты."
+  },
+  {
+    "name": "Омлет с сыром",
+    "pictures": "https://picsum.photos/seed/omelette33/500/400",
+    "description": "Воздушный омлет из трех яиц с сыром чеддер и свежей зеленью."
+  },
+  {
+    "name": "Гранола с йогуртом",
+    "pictures": "https://picsum.photos/seed/granola34/500/400",
+    "description": "Хрустящая запеченная овсянка с медом, греческим йогуртом и малиной."
+  },
+  {
+    "name": "Французские Тосты",
+    "pictures": "https://picsum.photos/seed/toast35/500/400",
+    "description": "Сладкие тосты из бриоши, обжаренные в яйце, с шариком мороженого."
+  },
+  {
+    "name": "Салат Цезарь",
+    "pictures": "https://picsum.photos/seed/caesar36/500/400",
+    "description": "Классический салат с сочной куриной грудкой, пармезаном и хрустящими гренками."
+  },
+  {
+    "name": "Греческий Салат",
+    "pictures": "https://picsum.photos/seed/greek37/500/400",
+    "description": "Свежие овощи, маслины Каламата и настоящий сыр фета с оливковым маслом."
+  },
+  {
+    "name": "Салат Нисуаз",
+    "pictures": "https://picsum.photos/seed/nicoise38/500/400",
+    "description": "Легкий французский салат с тунцом, стручковой фасолью и перепелиным яйцом."
+  },
+  {
+    "name": "Поке с лососем",
+    "pictures": "https://picsum.photos/seed/poke39/500/400",
+    "description": "Гавайское блюдо с рисом, свежим лососем, бобами эдамаме и чукой."
+  },
+  {
+    "name": "Тыквенный Крем-суп",
+    "pictures": "https://picsum.photos/seed/pumpkin40/500/400",
+    "description": "Нежный суп-пюре из запеченной тыквы с тыквенными семечками."
+  },
+  {
+    "name": "Грибной Крем-суп",
+    "pictures": "https://picsum.photos/seed/mushroom41/500/400",
+    "description": "Густой суп из лесных грибов со сливками и трюфельным маслом."
+  },
+  {
+    "name": "Том Ям",
+    "pictures": "https://picsum.photos/seed/tomyum42/500/400",
+    "description": "Острый тайский суп с креветками, кальмарами, кокосовым молоком и рисом."
+  },
+  {
+    "name": "Стейк из Лосося",
+    "pictures": "https://picsum.photos/seed/salmon43/500/400",
+    "description": "Нежный стейк красной рыбы на гриле с гарниром из дикого риса."
+  },
+  {
+    "name": "Паста Карбонара",
+    "pictures": "https://picsum.photos/seed/carbonara44/500/400",
+    "description": "Итальянская паста со сливочным соусом, панчеттой, желтком и сыром пекорино."
+  },
+  {
+    "name": "Пицца Маргарита",
+    "pictures": "https://picsum.photos/seed/pizza45/500/400",
+    "description": "Классическая неаполитанская пицца с томатным соусом, моцареллой и базиликом."
+  },
+  {
+    "name": "Фирменный Бургер",
+    "pictures": "https://picsum.photos/seed/burger46/500/400",
+    "description": "Котлета из мраморной говядины, сыр чеддер, бекон и соус барбекю."
+  },
+  {
+    "name": "Грибное Ризотто",
+    "pictures": "https://picsum.photos/seed/risotto47/500/400",
+    "description": "Итальянский рис арборио, приготовленный с белыми грибами и пармезаном."
+  },
+  {
+    "name": "Клаб Сэндвич",
+    "pictures": "https://picsum.photos/seed/sandwich48/500/400",
+    "description": "Двойной сэндвич с курицей гриль, беконом, томатами и картофелем фри."
+  },
+  {
+    "name": "Куриная Грудка Гриль",
+    "pictures": "https://picsum.photos/seed/chicken49/500/400",
+    "description": "Сочная куриная грудка с овощами на гриле и легким чесночным соусом."
+  },
+  {
+    "name": "Чизкейк Нью-Йорк",
+    "pictures": "https://picsum.photos/seed/cheesecake50/500/400",
+    "description": "Классический творожный десерт на песочной основе с ванильным ароматом."
+  }
+]

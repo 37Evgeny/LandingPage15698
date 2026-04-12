@@ -1,0 +1,10 @@
+# Создай .gitignore в корне DrawingContestFive
+cat > .gitignore << EOF
+node_modules/
+five15698/node_modules/
+server/node_modules/
+.DS_Store
+dist/
+five15698/dist/
+.env
+EOF
