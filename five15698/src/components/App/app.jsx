@@ -8,44 +8,37 @@ import "../../index.css";
 import useCards from "../../hooks/useCards.js";
 import AddCardDialog from "../AddCardDialog/add-card-dialog.jsx";
 import CardList from "../CardList/card-list";
-import ConfirmDialog from "../ConfirmDialog/confirm-dialog.jsx"; // ← импорт
+import ConfirmDialog from "../ConfirmDialog/confirm-dialog.jsx";
 import Footer from "../Footer/footer";
 import Header from "../Header/header";
-import Spinner from "../Spinner/spinner";
+import SkeletonList from "../SkeletonCard/skeleton-list"; // ← импорт
 
 function App() {
   const { cards, isLoading, error, handleAdd, handleEdit, handleDelete } = useCards();
 
-  // Состояние диалога добавления/редактирования
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
-
-  // ✅ Состояние диалога подтверждения удаления
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     cardId: null,
     cardName: "",
   });
 
-  // Открытие диалога создания
   const handleOpenCreate = () => {
     setEditingCard(null);
     setIsDialogOpen(true);
   };
 
-  // Открытие диалога редактирования
   const handleOpenEdit = (card) => {
     setEditingCard(card);
     setIsDialogOpen(true);
   };
 
-  // Закрытие диалога создания/редактирования
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingCard(null);
   };
 
-  // Сабмит формы
   const handleSubmit = (formData) => {
     const action = editingCard
       ? handleEdit(editingCard._id, formData)
@@ -56,7 +49,6 @@ function App() {
       .catch(() => {});
   };
 
-  // ✅ Открытие диалога подтверждения удаления
   const handleOpenConfirm = (card) => {
     setConfirmDialog({
       open: true,
@@ -65,7 +57,6 @@ function App() {
     });
   };
 
-  // ✅ Закрытие диалога подтверждения
   const handleCloseConfirm = () => {
     setConfirmDialog({
       open: false,
@@ -74,7 +65,6 @@ function App() {
     });
   };
 
-  // ✅ Подтверждение удаления
   const handleConfirmDelete = () => {
     handleDelete(confirmDialog.cardId)
       .then(() => handleCloseConfirm())
@@ -82,14 +72,15 @@ function App() {
   };
 
   const renderContent = () => {
-    if (isLoading) return <Spinner />;
+    // ✅ Skeleton вместо Spinner
+    if (isLoading) return <SkeletonList count={8} />;
     if (error) return (
       <p style={{ color: "red", textAlign: "center" }}>{error}</p>
     );
     return (
       <CardList
         cardsAll={cards}
-        onDelete={handleOpenConfirm} // ✅ Теперь открывает диалог
+        onDelete={handleOpenConfirm}
         onEdit={handleOpenEdit}
       />
     );
@@ -121,7 +112,6 @@ function App() {
 
       <Footer />
 
-      {/* Диалог создания / редактирования */}
       <AddCardDialog
         open={isDialogOpen}
         onClose={handleCloseDialog}
@@ -137,7 +127,6 @@ function App() {
         }
       />
 
-      {/* ✅ Диалог подтверждения удаления */}
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={handleCloseConfirm}
