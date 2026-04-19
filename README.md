@@ -1,7 +1,8 @@
 # 🎨 Drawing Contest — Галерея карточек
 
 Веб-приложение для управления карточками с изображениями.
-Позволяет добавлять, редактировать и удалять карточки через удобный интерфейс с тёмной темой.
+Позволяет добавлять, редактировать, удалять и искать карточки
+через удобный интерфейс с тёмной темой.
 
 ![React](https://img.shields.io/badge/React-18-blue?logo=react)
 ![MUI](https://img.shields.io/badge/MUI-v7-007FFF?logo=mui)
@@ -13,33 +14,49 @@
 
 ## 📸 Возможности
 
+### Карточки
 - 🖼️ Отображение карточек в адаптивной сетке
 - ➕ Добавление новой карточки (название, картинка, описание)
 - ✏️ Редактирование существующей карточки
 - 🗑️ Удаление с диалогом подтверждения
+- 🔍 Поиск по названию и описанию
+- 🔃 Сортировка (новые/старые/А-Я/Я-А)
+- 📊 Счётчик найденных результатов
+
+### UX
 - 💀 Skeleton загрузка вместо спиннера
+- 🖼️ Превью картинки при вводе URL
+- ✅ Валидация URL изображения
+- 🔔 Snackbar уведомления об операциях
+- 📭 Empty State — заглушка если карточек нет
+- 🔍 Empty State при пустом поиске
+- 🖼️ Placeholder если картинка не загрузилась
+- 🎬 Анимации появления карточек
 - 🌙 Тёмная тема через CSS переменные
-- 📱 Адаптивный дизайн (mobile / tablet / desktop)
+- 📱 Адаптивный дизайн (mobile/tablet/desktop)
 
 ---
 
 ## 🚀 Стек технологий
 
 ### Frontend
+
 | Технология | Версия | Описание |
 |-----------|--------|----------|
 | React | 18 | UI библиотека |
 | Vite | 7 | Сборщик проекта |
 | MUI Material | v7 | UI компоненты |
 | MUI Icons | v7 | Иконки |
+| Emotion | 11 | CSS-in-JS стили |
 
 ### Backend
-| Технология | Описание |
-|-----------|----------|
-| Node.js | Среда выполнения |
-| Express | Веб-фреймворк |
-| MongoDB | База данных |
-| Mongoose | ODM для MongoDB |
+
+| Технология | Версия | Описание |
+|-----------|--------|----------|
+| Node.js | 18+ | Среда выполнения |
+| Express | 4 | Веб-фреймворк |
+| MongoDB | 8 | База данных |
+| Mongoose | 8 | ODM для MongoDB |
 
 ---
 
@@ -47,42 +64,59 @@
 
 ```
 DrawingContestFive/
-├── five15698/                      # Frontend
-│   ├── public/                     # Статические файлы
+├── five15698/                          # Frontend
+│   ├── public/                         # Статические файлы
 │   ├── src/
 │   │   ├── api/
-│   │   │   └── cards-api.js        # Все HTTP запросы к API
+│   │   │   └── cards-api.js            # Все HTTP запросы к API
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useCards.js             # Хук — операции с карточками
+│   │   │   ├── useSnackbar.js          # Хук — уведомления
+│   │   │   ├── useSearch.js            # Хук — поиск и сортировка
+│   │   │   └── use-image-url.js        # Хук — валидация URL картинки
+│   │   │
 │   │   ├── components/
 │   │   │   ├── App/
-│   │   │   │   └── app.jsx         # Главный компонент
+│   │   │   │   └── app.jsx             # Главный компонент
 │   │   │   ├── AddCardDialog/
-│   │   │   │   └── add-card-dialog.jsx  # Диалог добавления/редактирования
+│   │   │   │   └── add-card-dialog.jsx # Диалог добавления/редактирования
 │   │   │   ├── Card/
-│   │   │   │   └── card.jsx        # Карточка с кнопками
+│   │   │   │   └── card.jsx            # Карточка с кнопками
 │   │   │   ├── CardList/
-│   │   │   │   └── card-list.jsx   # Сетка карточек
+│   │   │   │   └── card-list.jsx       # Сетка карточек
 │   │   │   ├── ConfirmDialog/
 │   │   │   │   └── confirm-dialog.jsx  # Диалог подтверждения удаления
+│   │   │   ├── EmptyState/
+│   │   │   │   └── empty-state.jsx     # Заглушка пустого списка
+│   │   │   ├── SearchBar/
+│   │   │   │   └── search-bar.jsx      # Строка поиска
+│   │   │   ├── SortBar/
+│   │   │   │   └── sort-bar.jsx        # Сортировка карточек
 │   │   │   ├── SkeletonCard/
-│   │   │   │   ├── skeleton-card.jsx   # Одна карточка-заглушка
+│   │   │   │   ├── skeleton-card.jsx   # Карточка-заглушка загрузки
 │   │   │   │   └── skeleton-list.jsx   # Список заглушек
+│   │   │   ├── Snackbar/
+│   │   │   │   └── snackbar.jsx        # Уведомления
 │   │   │   ├── Header/
 │   │   │   │   └── header.jsx
 │   │   │   ├── Footer/
 │   │   │   │   └── footer.jsx
 │   │   │   └── Spinner/
 │   │   │       └── spinner.jsx
-│   │   ├── hooks/
-│   │   │   └── useCards.js         # Кастомный хук карточек
-│   │   ├── index.css               # Глобальные стили / CSS переменные
-│   │   └── main.jsx                # Точка входа React
+│   │   │
+│   │   ├── index.css                   # Глобальные стили / CSS переменные
+│   │   └── main.jsx                    # Точка входа React
+│   │
 │   ├── index.html
 │   ├── package.json
-│   └── vite.config.js
+│   ├── vite.config.js
+│   └── eslint.config.js
 │
-└── server/                         # Backend
-    ├── index.js                    # Точка входа Express сервера
-    ├── data.json                   # Данные
+└── server/                             # Backend
+    ├── index.js                        # Точка входа Express
+    ├── data.json                       # Данные
+    ├── pure.js                         # Вспомогательные функции
     └── package.json
 ```
 
@@ -91,9 +125,12 @@ DrawingContestFive/
 ## ⚙️ Установка и запуск
 
 ### Требования
-- Node.js >= 18
-- MongoDB (локально или Atlas)
-- npm >= 9
+
+```
+Node.js  >= 18
+MongoDB  >= 6 (локально или Atlas)
+npm      >= 9
+```
 
 ### 1. Клонируй репозиторий
 
@@ -102,7 +139,7 @@ git clone git@github.com:37Evgeny/LandingPage15698.git
 cd DrawingContestFive
 ```
 
-### 2. Запусти Backend
+### 2. Настрой и запусти Backend
 
 ```bash
 # Перейди в папку сервера
@@ -111,6 +148,10 @@ cd server
 # Установи зависимости
 npm install
 
+# Создай файл переменных окружения
+cp .env.example .env
+# Отредактируй .env — укажи свой MongoDB URI
+
 # Запусти сервер
 node index.js
 
@@ -118,7 +159,7 @@ node index.js
 # http://127.0.0.1:4000
 ```
 
-### 3. Запусти Frontend
+### 3. Настрой и запусти Frontend
 
 ```bash
 # Перейди в папку фронтенда
@@ -136,25 +177,73 @@ npm run dev
 
 ---
 
-## 🔌 API endpoints
+## 🔌 API Reference
 
-| Метод | Endpoint | Описание | Body |
-|-------|----------|----------|------|
-| `GET` | `/api/cards` | Получить все карточки | — |
-| `POST` | `/api/cards` | Создать карточку | `{ name, pictures, description }` |
-| `PATCH` | `/api/cards/:id` | Обновить карточку | `{ name, pictures, description }` |
-| `DELETE` | `/api/cards/:id` | Удалить карточку | — |
+### Base URL
+```
+http://127.0.0.1:4000/api
+```
 
-### Пример карточки
+### Endpoints
 
+#### Получить все карточки
+```http
+GET /api/cards
+```
+**Ответ:**
+```json
+[
+  {
+    "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
+    "name": "Название карточки",
+    "pictures": "https://example.com/image.jpg",
+    "description": "Описание карточки"
+  }
+]
+```
+
+#### Создать карточку
+```http
+POST /api/cards
+Content-Type: application/json
+```
+**Тело запроса:**
 ```json
 {
-  "_id": "64f1a2b3c4d5e6f7a8b9c0d1",
   "name": "Название карточки",
   "pictures": "https://example.com/image.jpg",
   "description": "Описание карточки"
 }
 ```
+
+#### Обновить карточку
+```http
+PATCH /api/cards/:id
+Content-Type: application/json
+```
+**Тело запроса:**
+```json
+{
+  "name": "Новое название",
+  "pictures": "https://example.com/new-image.jpg",
+  "description": "Новое описание"
+}
+```
+
+#### Удалить карточку
+```http
+DELETE /api/cards/:id
+```
+
+### Статусы ответов
+
+| Статус | Описание |
+|--------|----------|
+| `200` | Успешный запрос |
+| `201` | Ресурс создан |
+| `400` | Ошибка валидации |
+| `404` | Ресурс не найден |
+| `500` | Ошибка сервера |
 
 ---
 
@@ -164,41 +253,124 @@ npm run dev
 
 | Файл | Зона ответственности |
 |------|---------------------|
-| `cards-api.js` | Все HTTP запросы, обработка статусов |
-| `useCards.js` | Состояние карточек, бизнес-логика |
-| `App` | UI состояние, рендер компонентов |
+| `cards-api.js` | HTTP запросы, обработка статусов сервера |
+| `useCards.js` | Состояние карточек, CRUD операции |
+| `useSnackbar.js` | Состояние и методы уведомлений |
+| `useSearch.js` | Поиск, фильтрация, сортировка |
+| `use-image-url.js` | Валидация URL, состояние превью |
+| `App` | UI состояние диалогов, рендер |
 | `AddCardDialog` | Состояние формы, валидация полей |
 | `ConfirmDialog` | Подтверждение удаления |
-| `SkeletonList` | Отображение загрузки |
-| `CardList` | Сетка карточек |
-| `Card` | Отображение одной карточки |
+| `SearchBar` | Поле поиска с очисткой |
+| `SortBar` | Выпадающий список сортировки |
+| `SkeletonList` | Заглушки при загрузке |
+| `EmptyState` | Пустой список / нет результатов |
+| `CardList` | Сетка карточек с анимацией |
+| `Card` | Карточка с placeholder и hover |
 
 ### Поток данных
 
 ```
-cards-api.js         # HTTP запросы
-     ↑
-useCards.js          # Хук — состояние и логика
-     ↑
-App.jsx              # UI состояние, диалоги
-     ↑
-CardList → Card      # Отображение карточек
+cards-api.js
+     ↑ HTTP запросы
+useCards.js  ←→  useSnackbar.js
+     ↑                ↑
+     └──────  App  ───┘
+              ↑
+     useSearch.js (фильтрация)
+              ↑
+         CardList
+         ↑       ↑
+      Card    EmptyState
+```
+
+### Жизненный цикл запроса
+
+```
+Пользователь нажимает кнопку
+         ↓
+App вызывает handleAdd/handleEdit/handleDelete
+         ↓
+useCards вызывает cardsApi
+         ↓
+cardsApi делает fetch запрос
+         ↓
+Успех → обновляет состояние + showSuccess()
+Ошибка → showError() + throw err
+         ↓
+useSnackbar показывает уведомление
 ```
 
 ---
 
 ## 🎨 Тёмная тема
 
-Тема реализована через CSS переменные в `index.css`:
+Реализована через CSS переменные в `index.css`:
 
 ```css
 :root {
-  --bg-paper: #1e1e1e;        /* Фон карточек */
-  --text-primary: #ffffff;    /* Основной текст */
-  --text-secondary: #aaaaaa;  /* Второстепенный текст */
-  --border-color: #333333;    /* Цвет рамок */
-  --accent-main: #6c63ff;     /* Акцентный цвет */
-  --accent-light: #8b85ff;    /* Светлый акцент */
+  --bg-main:        #121212;   /* Основной фон */
+  --bg-paper:       #1e1e1e;   /* Фон карточек и диалогов */
+  --text-primary:   #ffffff;   /* Основной текст */
+  --text-secondary: #aaaaaa;   /* Второстепенный текст */
+  --border-color:   #333333;   /* Цвет рамок */
+  --accent-main:    #6c63ff;   /* Акцентный цвет */
+  --accent-light:   #8b85ff;   /* Светлый акцент (hover) */
+}
+```
+
+---
+
+## 🔧 Переменные окружения
+
+### `server/.env`
+
+```bash
+PORT=4000
+MONGODB_URI=mongodb://localhost:27017/cards
+```
+
+### `server/.env.example`
+
+```bash
+PORT=4000
+MONGODB_URI=mongodb://localhost:27017/cards
+# Для MongoDB Atlas:
+# MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/cards
+```
+
+---
+
+## 📦 Зависимости
+
+### Frontend `five15698/package.json`
+
+```json
+{
+  "dependencies": {
+    "@emotion/react": "^11.x.x",
+    "@emotion/styled": "^11.x.x",
+    "@mui/icons-material": "^7.x.x",
+    "@mui/material": "^7.x.x",
+    "react": "^18.x.x",
+    "react-dom": "^18.x.x"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.x.x",
+    "vite": "^7.x.x"
+  }
+}
+```
+
+### Backend `server/package.json`
+
+```json
+{
+  "dependencies": {
+    "cors": "^2.x.x",
+    "express": "^4.x.x",
+    "mongoose": "^8.x.x"
+  }
 }
 ```
 
@@ -206,53 +378,53 @@ CardList → Card      # Отображение карточек
 
 ## ✅ Реализованный функционал
 
+### Фаза 1 — Базовый CRUD
 - [x] Отображение карточек в адаптивной сетке
 - [x] Добавление новой карточки
 - [x] Редактирование существующей карточки
 - [x] Диалог подтверждения перед удалением
-- [x] Skeleton загрузка вместо спиннера
-- [x] Тёмная тема через CSS переменные
 - [x] Все запросы вынесены в `cards-api.js`
 - [x] Кастомный хук `useCards`
-- [x] Валидация формы
-- [x] Адаптивный дизайн
-- [x] Иконки MUI
+- [x] Snackbar уведомления
+
+### Фаза 2 — Улучшение UX
+- [x] Skeleton загрузка
+- [x] Превью картинки в форме
+- [x] Валидация URL изображения
+- [x] Placeholder если картинка не загрузилась
+- [x] Empty State — нет карточек
+- [x] Анимации появления карточек
+- [x] Hover эффект на карточках
+
+### Фаза 3 — Поиск и сортировка
+- [x] Поиск по названию и описанию
+- [x] Кнопка очистки поиска
+- [x] Счётчик результатов поиска
+- [x] Сортировка по дате (новые/старые)
+- [x] Сортировка по названию (А-Я/Я-А)
+- [x] Empty State при пустом поиске
 
 ---
 
-## 🔧 Переменные окружения
+## 🗺️ Планы развития
 
-Создай файл `.env` в папке `server`:
+### Фаза 4 — Авторизация
+- [ ] Регистрация и вход (JWT)
+- [ ] Защита маршрутов
+- [ ] Профиль пользователя
+- [ ] Привязка карточек к автору
 
-```bash
-PORT=4000
-MONGODB_URI=mongodb://localhost:27017/cards
-```
+### Фаза 5 — Взаимодействие
+- [ ] Лайки на карточках
+- [ ] Избранное
+- [ ] Детальная страница карточки
 
----
-
-## 📦 Зависимости Frontend
-
-```json
-{
-  "@mui/material": "^7.x.x",
-  "@mui/icons-material": "^7.x.x",
-  "@emotion/react": "^11.x.x",
-  "@emotion/styled": "^11.x.x",
-  "react": "^18.x.x",
-  "react-dom": "^18.x.x"
-}
-```
-
-## 📦 Зависимости Backend
-
-```json
-{
-  "express": "^4.x.x",
-  "mongoose": "^8.x.x",
-  "cors": "^2.x.x"
-}
-```
+### Фаза 6 — Инфраструктура
+- [ ] React Router
+- [ ] Пагинация
+- [ ] TypeScript
+- [ ] Деплой (Vercel + Railway)
+- [ ] Тесты (Vitest)
 
 ---
 
@@ -264,5 +436,4 @@ MONGODB_URI=mongodb://localhost:27017/cards
 
 ## 📄 Лицензия
 
-MIT
-
+MIT © 2025 Evgeny
