@@ -9,6 +9,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import { useEffect, useState } from "react";
+import useImageUrl from "../../hooks/use-image-url.js"; // ✅ новый хук
 
 const INITIAL_FORM_STATE = {
   name: "",
@@ -16,68 +17,80 @@ const INITIAL_FORM_STATE = {
   description: "",
 };
 
-const darkInputStyle = {
+// ✅ Стиль теперь функция — меняет цвет при ошибке
+const darkInputStyle = (hasError) => ({
   "& .MuiOutlinedInput-root": {
     color: "var(--text-primary)",
-    "& fieldset": { borderColor: "var(--border-color)" },
-    "&:hover fieldset": { borderColor: "var(--text-secondary)" },
-    "&.Mui-focused fieldset": { borderColor: "var(--accent-main)" },
+    "& fieldset": {
+      borderColor: hasError ? "#f44336" : "var(--border-color)",
+    },
+    "&:hover fieldset": {
+      borderColor: hasError ? "#f44336" : "var(--text-secondary)",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: hasError ? "#f44336" : "var(--accent-main)",
+    },
   },
-  "& .MuiInputLabel-root": { color: "var(--text-secondary)" },
-  "& .MuiInputLabel-root.Mui-focused": { color: "var(--accent-main)" },
-};
-
-const FORM_FIELDS = [
-  { id: "name", label: "Название", multiline: false, rows: 1 },
-  { id: "pictures", label: "Ссылка на картинку (URL)", multiline: false, rows: 1 },
-  { id: "description", label: "Описание", multiline: true, rows: 3 },
-];
+  "& .MuiInputLabel-root": {
+    color: hasError ? "#f44336" : "var(--text-secondary)",
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: hasError ? "#f44336" : "var(--accent-main)",
+  },
+  "& .MuiFormHelperText-root": {
+    color: "#f44336",
+  },
+});
 
 function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
-  // ✅ Состояния превью
-  const [previewError, setPreviewError] = useState(false);
-  const [previewLoaded, setPreviewLoaded] = useState(false);
+  // ✅ Подключаем хук валидации и превью
+  const {
+    validationError,
+    showPreview,
+    imageError,
+    imageLoaded,
+    setImageError,
+    setImageLoaded,
+  } = useImageUrl(formData.pictures);
 
   useEffect(() => {
     if (open) {
       setFormData(initialData ?? INITIAL_FORM_STATE);
-      // ✅ Сбрасываем состояние превью при открытии
-      setPreviewError(false);
-      setPreviewLoaded(false);
+      setImageError(false);
+      setImageLoaded(false);
     }
   }, [open, initialData]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    // ✅ Сбрасываем ошибку превью при изменении URL
     if (field === "pictures") {
-      setPreviewError(false);
-      setPreviewLoaded(false);
+      setImageError(false);
+      setImageLoaded(false);
     }
   };
 
   const handleClose = () => {
     setFormData(INITIAL_FORM_STATE);
-    setPreviewError(false);
-    setPreviewLoaded(false);
+    setImageError(false);
+    setImageLoaded(false);
     onClose();
   };
 
   const handleSubmit = () => {
     onAdd(formData);
     setFormData(INITIAL_FORM_STATE);
-    setPreviewError(false);
-    setPreviewLoaded(false);
   };
 
-  const isSubmitDisabled = !formData.name.trim() || !formData.pictures.trim();
+  // ✅ Блокируем если есть ошибка валидации
+  const isSubmitDisabled =
+    !formData.name.trim() ||
+    !formData.pictures.trim() ||
+    !!validationError;
+
   const title = initialData ? "Редактировать карточку" : "Создать новую карточку";
   const submitLabel = initialData ? "Сохранить изменения" : "Сохранить";
-
-  // ✅ Показываем превью только если URL не пустой
-  const showPreview = formData.pictures.trim().length > 0;
 
   return (
     <Dialog
@@ -105,20 +118,27 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
           minWidth: { xs: "280px", sm: "400px" },
         }}
       >
-        {FORM_FIELDS.map((field) => (
-          <TextField
-            key={field.id}
-            label={field.label}
-            variant="outlined"
-            multiline={field.multiline}
-            rows={field.multiline ? field.rows : undefined}
-            value={formData[field.id]}
-            onChange={handleChange(field.id)}
-            sx={darkInputStyle}
-          />
-        ))}
+        {/* Название */}
+        <TextField
+          label="Название"
+          variant="outlined"
+          value={formData.name}
+          onChange={handleChange("name")}
+          sx={darkInputStyle(false)}
+        />
 
-        {/* ✅ Блок превью картинки */}
+        {/* ✅ URL с валидацией */}
+        <TextField
+          label="Ссылка на картинку (URL)"
+          variant="outlined"
+          value={formData.pictures}
+          onChange={handleChange("pictures")}
+          error={!!validationError}
+          helperText={validationError}
+          sx={darkInputStyle(!!validationError)}
+        />
+
+        {/* ✅ Превью картинки */}
         {showPreview && (
           <Box>
             <Typography
@@ -127,14 +147,13 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
             >
               Превью:
             </Typography>
-
             <Box
               sx={{
                 width: "100%",
                 height: 200,
                 borderRadius: 1,
                 overflow: "hidden",
-                border: "1px solid var(--border-color)",
+                border: `1px solid ${imageError ? "#f44336" : "var(--border-color)"}`,
                 bgcolor: "var(--bg-paper)",
                 display: "flex",
                 alignItems: "center",
@@ -142,11 +161,10 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
                 position: "relative",
               }}
             >
-              {/* ✅ Ошибка загрузки картинки */}
-              {previewError && (
+              {imageError && (
                 <Typography
                   variant="body2"
-                  sx={{ color: "var(--text-secondary)", textAlign: "center", px: 2 }}
+                  sx={{ color: "#f44336", textAlign: "center", px: 2 }}
                 >
                   🖼️ Не удалось загрузить картинку.
                   <br />
@@ -154,17 +172,16 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
                 </Typography>
               )}
 
-              {/* ✅ Картинка с анимацией появления */}
-              {!previewError && (
-                <Fade in={previewLoaded} timeout={400}>
+              {!imageError && (
+                <Fade in={imageLoaded} timeout={400}>
                   <Box
                     component="img"
                     src={formData.pictures}
                     alt="Превью"
-                    onLoad={() => setPreviewLoaded(true)}
+                    onLoad={() => setImageLoaded(true)}
                     onError={() => {
-                      setPreviewError(true);
-                      setPreviewLoaded(false);
+                      setImageError(true);
+                      setImageLoaded(false);
                     }}
                     sx={{
                       width: "100%",
@@ -178,8 +195,7 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
                 </Fade>
               )}
 
-              {/* ✅ Пока картинка грузится — показываем текст */}
-              {!previewLoaded && !previewError && (
+              {!imageLoaded && !imageError && (
                 <Typography
                   variant="body2"
                   sx={{ color: "var(--text-secondary)" }}
@@ -190,13 +206,21 @@ function AddCardDialog({ open, onClose, onAdd, initialData = null }) {
             </Box>
           </Box>
         )}
+
+        {/* Описание */}
+        <TextField
+          label="Описание"
+          variant="outlined"
+          multiline
+          rows={3}
+          value={formData.description}
+          onChange={handleChange("description")}
+          sx={darkInputStyle(false)}
+        />
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 0 }}>
-        <Button
-          onClick={handleClose}
-          sx={{ color: "var(--text-secondary)" }}
-        >
+        <Button onClick={handleClose} sx={{ color: "var(--text-secondary)" }}>
           Отмена
         </Button>
         <Button

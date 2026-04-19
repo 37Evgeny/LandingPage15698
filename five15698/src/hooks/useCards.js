@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { cardsApi } from "../api/cards-api";
 
-function useCards() {
+// ✅ Принимаем колбэки уведомлений
+function useCards({ onSuccess, onError }) {
   const [cards, setCards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Загрузка карточек при монтировании
   useEffect(() => {
     setIsLoading(true);
     cardsApi
@@ -15,58 +15,64 @@ function useCards() {
       .catch((err) => {
         console.error("Ошибка загрузки карточек:", err);
         setError("Не удалось загрузить карточки");
+        onError("Не удалось загрузить карточки"); // ✅ Уведомление об ошибке
       })
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Добавление карточки
   const handleAdd = (formData) => {
     return cardsApi
       .create(formData)
       .then((createdCard) => {
         setCards((prev) => [createdCard, ...prev]);
+        onSuccess("Карточка успешно добавлена! 🎉"); // ✅
       })
       .catch((err) => {
         console.error("Ошибка добавления:", err);
-        throw err; // пробрасываем ошибку выше для обработки в компоненте
+        onError("Не удалось добавить карточку"); // ✅
+        throw err;
       });
   };
 
-  // Редактирование карточки
   const handleEdit = (id, formData) => {
     return cardsApi
       .update(id, formData)
       .then((updatedCard) => {
         setCards((prev) =>
-          prev.map((card) => (card._id === updatedCard._id ? updatedCard : card))
+          prev.map((card) =>
+            card._id === updatedCard._id ? updatedCard : card
+          )
         );
+        onSuccess("Карточка успешно обновлена! ✏️"); // ✅
       })
       .catch((err) => {
         console.error("Ошибка редактирования:", err);
+        onError("Не удалось обновить карточку"); // ✅
         throw err;
       });
   };
 
-  // Удаление карточки
   const handleDelete = (id) => {
     return cardsApi
       .remove(id)
       .then(() => {
         setCards((prev) => prev.filter((card) => card._id !== id));
+        onSuccess("Карточка удалена 🗑️"); // ✅
       })
       .catch((err) => {
         console.error("Ошибка удаления:", err);
+        onError("Не удалось удалить карточку"); // ✅
         throw err;
       });
   };
 
   return {
-    cards,       // массив карточек
-    isLoading,   // флаг загрузки
-    error,       // ошибка загрузки
-    handleAdd,   // добавить карточку
-    handleEdit,  // редактировать карточку
-    handleDelete // удалить карточку
+    cards,
+    isLoading,
+    error,
+    handleAdd,
+    handleEdit,
+    handleDelete,
   };
 }
 

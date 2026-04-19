@@ -1,5 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -8,7 +9,35 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
+import { useState } from "react";
+
+// ✅ Новый компонент — заглушка если картинка не загрузилась
+function ImagePlaceholder() {
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        height: 200,
+        bgcolor: "var(--border-color)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1,
+      }}
+    >
+      <Typography sx={{ fontSize: "2.5rem" }}>🖼️</Typography>
+      <Typography variant="caption" sx={{ color: "var(--text-secondary)" }}>
+        Изображение недоступно
+      </Typography>
+    </Box>
+  );
+}
+
 function CardItem({ card, onDelete, onEdit }) {
+  // ✅ Состояние ошибки загрузки картинки
+  const [imgError, setImgError] = useState(false);
+
   return (
     <Card
       sx={{
@@ -18,15 +47,27 @@ function CardItem({ card, onDelete, onEdit }) {
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        // ✅ Анимация при наведении
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+        },
       }}
     >
-      <CardMedia
-        component="img"
-        height="200"
-        image={card.pictures}
-        alt={card.name}
-        sx={{ objectFit: "cover" }}
-      />
+      {/* ✅ Показываем заглушку если картинка не загрузилась */}
+      {imgError ? (
+        <ImagePlaceholder />
+      ) : (
+        <CardMedia
+          component="img"
+          height="200"
+          image={card.pictures}
+          alt={card.name}
+          onError={() => setImgError(true)}
+          sx={{ objectFit: "cover" }}
+        />
+      )}
 
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -55,7 +96,7 @@ function CardItem({ card, onDelete, onEdit }) {
 
         <Tooltip title="Удалить">
           <IconButton
-            onClick={() => onDelete(card)} // ✅ передаём весь объект
+            onClick={() => onDelete(card)}
             sx={{
               color: "var(--text-secondary)",
               "&:hover": {
