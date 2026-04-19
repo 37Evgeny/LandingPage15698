@@ -6,14 +6,17 @@ import { useState } from "react";
 import "../../index.css";
 
 import useCards from "../../hooks/useCards.js";
+import useSearch from "../../hooks/useSearch.js"; // ✅ новый хук
 import useSnackbar from "../../hooks/useSnackbar.js";
 import AddCardDialog from "../AddCardDialog/add-card-dialog.jsx";
 import CardList from "../CardList/card-list";
 import ConfirmDialog from "../ConfirmDialog/confirm-dialog.jsx";
 import Footer from "../Footer/footer";
 import Header from "../Header/header";
+import SearchBar from "../SearchBar/search-bar.jsx"; // ✅ новый компонент
 import SkeletonList from "../SkeletonCard/skeleton-list";
 import Snackbar from "../Snackbar/snackbar.jsx";
+import SortBar from "../SortBar/sort-bar.jsx"; // ✅ новый компонент
 
 function App() {
   const { snackbar, hideSnackbar, showSuccess, showError } = useSnackbar();
@@ -24,6 +27,17 @@ function App() {
       onError: showError,
     });
 
+  // ✅ Подключаем хук поиска и сортировки
+  const {
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    filteredCards,
+    totalCount,
+    filteredCount,
+  } = useSearch(cards);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -32,25 +46,21 @@ function App() {
     cardName: "",
   });
 
-  // Открытие диалога создания
   const handleOpenCreate = () => {
     setEditingCard(null);
     setIsDialogOpen(true);
   };
 
-  // Открытие диалога редактирования
   const handleOpenEdit = (card) => {
     setEditingCard(card);
     setIsDialogOpen(true);
   };
 
-  // Закрытие диалога создания/редактирования
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingCard(null);
   };
 
-  // Сабмит формы — создание или редактирование
   const handleSubmit = (formData) => {
     const action = editingCard
       ? handleEdit(editingCard._id, formData)
@@ -61,7 +71,6 @@ function App() {
       .catch(() => {});
   };
 
-  // Открытие диалога подтверждения удаления
   const handleOpenConfirm = (card) => {
     setConfirmDialog({
       open: true,
@@ -70,12 +79,10 @@ function App() {
     });
   };
 
-  // Закрытие диалога подтверждения
   const handleCloseConfirm = () => {
     setConfirmDialog({ open: false, cardId: null, cardName: "" });
   };
 
-  // Подтверждение удаления
   const handleConfirmDelete = () => {
     handleDelete(confirmDialog.cardId)
       .then(() => handleCloseConfirm())
@@ -89,10 +96,13 @@ function App() {
     );
     return (
       <CardList
-        cardsAll={cards}
+        // ✅ Передаём отфильтрованные карточки
+        cardsAll={filteredCards}
         onDelete={handleOpenConfirm}
         onEdit={handleOpenEdit}
-        onAdd={handleOpenCreate} // ✅ Для Empty State
+        onAdd={handleOpenCreate}
+        // ✅ Передаём флаг поиска для Empty State
+        isSearching={!!searchQuery.trim()}
       />
     );
   };
@@ -102,6 +112,7 @@ function App() {
       <Header />
 
       <Container sx={{ flexGrow: 1, py: "20px" }}>
+        {/* Кнопка добавления */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <Button
             variant="contained"
@@ -118,12 +129,37 @@ function App() {
           </Button>
         </Box>
 
+        {/* ✅ Поиск и сортировка — показываем только если есть карточки */}
+        {!isLoading && !error && cards.length > 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              mb: 4,
+              alignItems: { xs: "stretch", sm: "center" },
+            }}
+          >
+            {/* Поиск занимает всё доступное место */}
+            <Box sx={{ flexGrow: 1 }}>
+              <SearchBar
+                searchQuery={searchQuery}
+                onSearch={setSearchQuery}
+                filteredCount={filteredCount}
+                totalCount={totalCount}
+              />
+            </Box>
+
+            {/* Сортировка справа */}
+            <SortBar sortBy={sortBy} onSort={setSortBy} />
+          </Box>
+        )}
+
         {renderContent()}
       </Container>
 
       <Footer />
 
-      {/* Диалог создания / редактирования */}
       <AddCardDialog
         open={isDialogOpen}
         onClose={handleCloseDialog}
@@ -139,7 +175,6 @@ function App() {
         }
       />
 
-      {/* Диалог подтверждения удаления */}
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={handleCloseConfirm}
@@ -147,7 +182,6 @@ function App() {
         cardName={confirmDialog.cardName}
       />
 
-      {/* Snackbar уведомления */}
       <Snackbar
         open={snackbar.open}
         message={snackbar.message}

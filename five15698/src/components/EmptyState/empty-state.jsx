@@ -2,7 +2,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
-function EmptyState({ onAdd }) {
+// ✅ Два режима: нет карточек / ничего не найдено
+function EmptyState({ onAdd, isSearching = false }) {
   return (
     <Box
       sx={{
@@ -22,7 +23,7 @@ function EmptyState({ onAdd }) {
           opacity: 0.5,
         }}
       >
-        🖼️
+        {isSearching ? "🔍" : "🖼️"}
       </Box>
 
       <Box sx={{ textAlign: "center" }}>
@@ -31,29 +32,34 @@ function EmptyState({ onAdd }) {
           fontWeight={600}
           sx={{ color: "var(--text-primary)", mb: 1 }}
         >
-          Карточек пока нет
+          {isSearching ? "Ничего не найдено" : "Карточек пока нет"}
         </Typography>
         <Typography
           variant="body2"
           sx={{ color: "var(--text-secondary)" }}
         >
-          Добавьте первую карточку — нажмите кнопку ниже
+          {isSearching
+            ? "Попробуйте изменить поисковый запрос"
+            : "Добавьте первую карточку — нажмите кнопку ниже"}
         </Typography>
       </Box>
 
-      <Button
-        variant="contained"
-        size="large"
-        onClick={onAdd}
-        sx={{
-          bgcolor: "var(--accent-main)",
-          "&:hover": { bgcolor: "var(--accent-light)" },
-          fontWeight: 600,
-          letterSpacing: "0.05rem",
-        }}
-      >
-        + Добавить первую карточку
-      </Button>
+      {/* ✅ Кнопку показываем только если нет карточек */}
+      {!isSearching && (
+        <Button
+          variant="contained"
+          size="large"
+          onClick={onAdd}
+          sx={{
+            bgcolor: "var(--accent-main)",
+            "&:hover": { bgcolor: "var(--accent-light)" },
+            fontWeight: 600,
+            letterSpacing: "0.05rem",
+          }}
+        >
+          + Добавить первую карточку
+        </Button>
+      )}
     </Box>
   );
 }
