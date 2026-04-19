@@ -1,10 +1,18 @@
-# Создай .gitignore в корне DrawingContestFive
 cat > .gitignore << EOF
+# Dependencies
 node_modules/
 five15698/node_modules/
 server/node_modules/
-.DS_Store
+
+# Build
 dist/
 five15698/dist/
+
+# System
+.DS_Store
 .env
+
+# Vite
+five15698/.vite/
 EOF
+
