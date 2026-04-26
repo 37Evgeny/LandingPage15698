@@ -1,7 +1,19 @@
-const BASE_URL = "http://127.0.0.1:4000/api/cards"; 
+const BASE_URL = "http://127.0.0.1:4000/api/cards";
+
+// ✅ Получаем токен из localStorage
+const getToken = () => localStorage.getItem("token");
 
 const request = (endpoint, options = {}) => {
-  return fetch(`${BASE_URL}${endpoint}`, options).then((res) => {
+  const token = getToken();
+
+  return fetch(`${BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...options.headers,
+      // ✅ Добавляем токен в каждый запрос
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  }).then((res) => {
     if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {

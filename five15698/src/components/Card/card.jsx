@@ -11,7 +11,6 @@ import Typography from "@mui/material/Typography";
 
 import { useState } from "react";
 
-// ✅ Новый компонент — заглушка если картинка не загрузилась
 function ImagePlaceholder() {
   return (
     <Box
@@ -34,8 +33,8 @@ function ImagePlaceholder() {
   );
 }
 
-function CardItem({ card, onDelete, onEdit }) {
-  // ✅ Состояние ошибки загрузки картинки
+// ✅ Принимаем isLoggedIn
+function CardItem({ card, onDelete, onEdit, isLoggedIn }) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -47,7 +46,6 @@ function CardItem({ card, onDelete, onEdit }) {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        // ✅ Анимация при наведении
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
         "&:hover": {
           transform: "translateY(-4px)",
@@ -55,7 +53,6 @@ function CardItem({ card, onDelete, onEdit }) {
         },
       }}
     >
-      {/* ✅ Показываем заглушку если картинка не загрузилась */}
       {imgError ? (
         <ImagePlaceholder />
       ) : (
@@ -78,37 +75,40 @@ function CardItem({ card, onDelete, onEdit }) {
         </Typography>
       </CardContent>
 
-      <CardActions sx={{ justifyContent: "flex-end", p: 1 }}>
-        <Tooltip title="Редактировать">
-          <IconButton
-            onClick={() => onEdit(card)}
-            sx={{
-              color: "var(--text-secondary)",
-              "&:hover": {
-                color: "var(--accent-main)",
-                bgcolor: "rgba(255,255,255,0.05)",
-              },
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
+      {/* ✅ Кнопки только для авторизованных */}
+      {isLoggedIn && (
+        <CardActions sx={{ justifyContent: "flex-end", p: 1 }}>
+          <Tooltip title="Редактировать">
+            <IconButton
+              onClick={() => onEdit(card)}
+              sx={{
+                color: "var(--text-secondary)",
+                "&:hover": {
+                  color: "var(--accent-main)",
+                  bgcolor: "rgba(255,255,255,0.05)",
+                },
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
 
-        <Tooltip title="Удалить">
-          <IconButton
-            onClick={() => onDelete(card)}
-            sx={{
-              color: "var(--text-secondary)",
-              "&:hover": {
-                color: "#f44336",
-                bgcolor: "rgba(244,67,54,0.05)",
-              },
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      </CardActions>
+          <Tooltip title="Удалить">
+            <IconButton
+              onClick={() => onDelete(card)}
+              sx={{
+                color: "var(--text-secondary)",
+                "&:hover": {
+                  color: "#f44336",
+                  bgcolor: "rgba(244,67,54,0.05)",
+                },
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </CardActions>
+      )}
     </Card>
   );
 }

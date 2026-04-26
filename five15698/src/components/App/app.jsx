@@ -5,29 +5,37 @@ import Container from "@mui/material/Container";
 import { useState } from "react";
 import "../../index.css";
 
+import useAuth from "../../hooks/useAuth.js";
 import useCards from "../../hooks/useCards.js";
-import useSearch from "../../hooks/useSearch.js"; // ✅ новый хук
+import useSearch from "../../hooks/useSearch.js";
 import useSnackbar from "../../hooks/useSnackbar.js";
 import AddCardDialog from "../AddCardDialog/add-card-dialog.jsx";
+import AuthDialog from "../AuthDialog/auth-dialog.jsx";
 import CardList from "../CardList/card-list";
 import ConfirmDialog from "../ConfirmDialog/confirm-dialog.jsx";
 import Footer from "../Footer/footer";
 import Header from "../Header/header";
-import SearchBar from "../SearchBar/search-bar.jsx"; // ✅ новый компонент
+import SearchBar from "../SearchBar/search-bar.jsx";
 import SkeletonList from "../SkeletonCard/skeleton-list";
 import Snackbar from "../Snackbar/snackbar.jsx";
-import SortBar from "../SortBar/sort-bar.jsx"; // ✅ новый компонент
+import SortBar from "../SortBar/sort-bar.jsx";
 
 function App() {
   const { snackbar, hideSnackbar, showSuccess, showError } = useSnackbar();
 
-  const { cards, isLoading, error, handleAdd, handleEdit, handleDelete } =
-    useCards({
-      onSuccess: showSuccess,
-      onError: showError,
-    });
+  // ✅ Авторизация
+  const {
+    currentUser,
+    isAuthLoading,
+    isLoggedIn,
+    handleRegister,
+    handleLogin,
+    handleLogout,
+  } = useAuth({ onSuccess: showSuccess, onError: showError });
 
-  // ✅ Подключаем хук поиска и сортировки
+  const { cards, isLoading, error, handleAdd, handleEdit, handleDelete } =
+    useCards({ onSuccess: showSuccess, onError: showError });
+
   const {
     searchQuery,
     setSearchQuery,
@@ -38,6 +46,9 @@ function App() {
     filteredCount,
   } = useSearch(cards);
 
+  // ✅ Состояние диалога авторизации
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -47,6 +58,11 @@ function App() {
   });
 
   const handleOpenCreate = () => {
+    // ✅ Только авторизованные могут добавлять
+    if (!isLoggedIn) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
     setEditingCard(null);
     setIsDialogOpen(true);
   };
@@ -90,29 +106,36 @@ function App() {
   };
 
   const renderContent = () => {
-    if (isLoading) return <SkeletonList count={8} />;
+    // ✅ Ждём проверки токена
+    if (isAuthLoading || isLoading) return <SkeletonList count={8} />;
     if (error) return (
       <p style={{ color: "red", textAlign: "center" }}>{error}</p>
     );
     return (
       <CardList
-        // ✅ Передаём отфильтрованные карточки
         cardsAll={filteredCards}
         onDelete={handleOpenConfirm}
         onEdit={handleOpenEdit}
         onAdd={handleOpenCreate}
-        // ✅ Передаём флаг поиска для Empty State
         isSearching={!!searchQuery.trim()}
+        // ✅ Передаём статус авторизации в карточки
+        isLoggedIn={isLoggedIn}
       />
     );
   };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header />
+
+      {/* ✅ Передаём данные пользователя в Header */}
+      <Header
+        currentUser={currentUser}
+        isLoggedIn={isLoggedIn}
+        onAuthOpen={() => setIsAuthDialogOpen(true)}
+        onLogout={handleLogout}
+      />
 
       <Container sx={{ flexGrow: 1, py: "20px" }}>
-        {/* Кнопка добавления */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
           <Button
             variant="contained"
@@ -129,8 +152,7 @@ function App() {
           </Button>
         </Box>
 
-        {/* ✅ Поиск и сортировка — показываем только если есть карточки */}
-        {!isLoading && !error && cards.length > 0 && (
+        {!isAuthLoading && !isLoading && !error && cards.length > 0 && (
           <Box
             sx={{
               display: "flex",
@@ -140,7 +162,6 @@ function App() {
               alignItems: { xs: "stretch", sm: "center" },
             }}
           >
-            {/* Поиск занимает всё доступное место */}
             <Box sx={{ flexGrow: 1 }}>
               <SearchBar
                 searchQuery={searchQuery}
@@ -149,8 +170,6 @@ function App() {
                 totalCount={totalCount}
               />
             </Box>
-
-            {/* Сортировка справа */}
             <SortBar sortBy={sortBy} onSort={setSortBy} />
           </Box>
         )}
@@ -159,6 +178,14 @@ function App() {
       </Container>
 
       <Footer />
+
+      {/* ✅ Диалог авторизации */}
+      <AuthDialog
+        open={isAuthDialogOpen}
+        onClose={() => setIsAuthDialogOpen(false)}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+      />
 
       <AddCardDialog
         open={isDialogOpen}

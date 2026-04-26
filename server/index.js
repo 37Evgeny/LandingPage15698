@@ -1,67 +1,106 @@
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-const cardsData = require('./data.json');
+const cors = require('cors');
+
+const authRoutes = require('./routes/auth');
+const cardRoutes = require('./routes/cards');
+const adminRoutes = require('./routes/admin');
+
+const User = require('./models/user');
 
 const app = express();
-const PORT = 4000; 
-
-// ХИТРОСТЬ: Собираем адрес, чтобы чат не вырезал его
+const PORT = process.env.PORT || 4000;
 const HOST = '127' + '.' + '0' + '.' + '0' + '.' + '1';
 
-// Разрешаем запросы отовсюду
+// ===========================
+// MIDDLEWARE
+// ===========================
+
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// 1. ТЕСТОВЫЙ МАРШРУТ
+// Логирование запросов
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
+// ===========================
+// ТЕСТОВЫЙ МАРШРУТ
+// ===========================
+
 app.get('/ping', (req, res) => {
   res.send('PONG - СЕРВЕР ЖИВОЙ!');
 });
 
-// 2. БАЗА ДАННЫХ
-const cardSchema = new mongoose.Schema({
-  name: String, pictures: String, description: String
-});
-const Card = mongoose.model('Card', cardSchema);
+// ===========================
+// РОУТЫ
+// ===========================
 
-// 3. МАРШРУТЫ
-app.get('/api/cards', async (req, res) => {
-  const cards = await Card.find(); 
-  res.json(cards);
-});
+app.use('/api', authRoutes);
+app.use('/api/cards', cardRoutes);
+app.use('/api/admin', adminRoutes);
 
-app.post('/api/cards', async (req, res) => {
-  const newCard = await Card.create(req.body);
-  res.status(201).json(newCard);
-});
+// ===========================
+// ОБРАБОТКА ОШИБОК
+// ===========================
 
-app.delete('/api/cards/:id', async (req, res) => {
-  await Card.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Удалено' });
+// 404
+app.use((req, res) => {
+  res.status(404).json({ message: 'Маршрут не найден' });
 });
 
-// 4. ЗАПУСК СЕРВЕРА
-app.listen(PORT, HOST, () => {
-  console.log(`🚀 Сервер работает на порту ${PORT}`);
+// Глобальный обработчик
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+});
 
-  const secretLink = Buffer.from('bW9uZ29kYjovLzEyNy4wLjAuMToyNzAxNy9teVNpdGVEQg==', 'base64').toString('utf8');
-  
-  mongoose.connect(secretLink).then(async () => {
-    console.log('✅ БД подключена!');
-    
-    // ВРЕМЕННО ДОБАВЛЯЕМ ЭТУ СТРОКУ, ЧТОБЫ УДАЛИТЬ СТАРЫЕ 10 КАРТОЧЕК:
-    await Card.deleteMany({});
-    
-    const count = await Card.countDocuments();
-    if (count === 0) {
-      console.log('⏳ Загружаем данные из файла...');
-      await Card.insertMany(cardsData.map(item => ({
-        name: item.name, pictures: item.pictures, description: item.description
-      })));
-      console.log('✅ Данные успешно сохранены в базу!');
+// ===========================
+// СОЗДАНИЕ АДМИНА
+// ===========================
+
+const createAdmin = async () => {
+  try {
+    const adminEmail = 'admin@admin.com';
+    const existingAdmin = await User.findOne({ email: adminEmail });
+
+    if (!existingAdmin) {
+      await User.create({
+        name: 'Admin',
+        email: adminEmail,
+        password: 'admin123',
+        role: 'admin',
+      });
+      console.log('✅ Админ создан: admin@admin.com / admin123');
     } else {
-      console.log('✅ Карточки уже лежат в базе данных.');
+      console.log('✅ Админ уже существует');
     }
-  }).catch((err) => console.error('❌ Ошибка подключения к БД:', err.message));
+  } catch (err) {
+    console.error('Ошибка создания админа:', err);
+  }
+};
 
+// ===========================
+// ЗАПУСК СЕРВЕРА
+// ===========================
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 Сервер работает на http://${HOST}:${PORT}`);
+
+  const secretLink = Buffer.from(
+    'bW9uZ29kYjovLzEyNy4wLjAuMToyNzAxNy9teVNpdGVEQg==',
+    'base64'
+  ).toString('utf8');
+
+  mongoose
+    .connect(secretLink)
+    .then(async () => {
+      console.log('✅ БД подключена!');
+      await createAdmin();
+    })
+    .catch((err) => {
+      console.error('❌ Ошибка подключения к БД:', err.message);
+    });
 });

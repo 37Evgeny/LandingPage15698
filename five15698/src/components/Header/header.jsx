@@ -1,95 +1,88 @@
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import Logo from "../Logo/logo";
-import "./index.css";
 
-const Header = () => {
+function Header({ currentUser, isLoggedIn, onAuthOpen, onLogout }) {
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#333333" }}>
-      <Container maxWidth="xl">
-        <Toolbar
-          disableGutters
-          sx={{
-            position: "relative",
-            // 1. ЖЕСТКО ФИКСИРУЕМ ВЫСОТУ ШАПКИ (например, 64px)
-            minHeight: "64px !important",
-            height: "64px",
-          }}
+    <AppBar
+      position="static"
+      sx={{
+        bgcolor: "var(--bg-paper)",
+        borderBottom: "1px solid var(--border-color)",
+        boxShadow: "none",
+      }}
+    >
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+
+        {/* Логотип */}
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          sx={{ color: "var(--accent-main)", letterSpacing: "0.05rem" }}
         >
-          {/* === ЛЕВАЯ ЧАСТЬ (Группа с анимацией) === */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              animation: "fadeInLeft 1s ease-out forwards",
-              opacity: 0,
-            }}
-          >
-            {/* 2. ОГРАНИЧИВАЕМ РАЗМЕР ЛОГОТИПА, чтобы он не распирал шапку */}
-            <Box
+          🎨 Drawing Contest
+        </Typography>
+
+        {/* ✅ Авторизация */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {isLoggedIn ? (
+            <>
+              {/* Имя пользователя */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AccountCircleIcon sx={{ color: "var(--accent-main)" }} />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "var(--text-primary)",
+                    display: { xs: "none", sm: "block" },
+                  }}
+                >
+                  {currentUser?.name}
+                </Typography>
+              </Box>
+
+              {/* Кнопка выхода */}
+              <Tooltip title="Выйти">
+                <IconButton
+                  onClick={onLogout}
+                  sx={{
+                    color: "var(--text-secondary)",
+                    "&:hover": { color: "#f44336" },
+                  }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          ) : (
+            // Кнопка входа
+            <Button
+              variant="outlined"
+              startIcon={<LoginIcon />}
+              onClick={onAuthOpen}
               sx={{
-                width: 45, // Задайте нужную ширину логотипа
-                height: 45, // Задайте нужную высоту логотипа
-                display: "flex",
-                alignItems: "center",
-                "& img": { width: "100%", height: "auto", maxHeight: "100%" },
-                "& svg": { width: "100%", height: "100%" },
+                color: "var(--accent-main)",
+                borderColor: "var(--accent-main)",
+                "&:hover": {
+                  borderColor: "var(--accent-light)",
+                  bgcolor: "rgba(108,99,255,0.08)",
+                },
               }}
             >
-              <Logo />
-            </Box>
-
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                ml: 2,
-                display: { xs: "flex", md: "flex" },
-                fontFamily: '"Roboto", sans-serif',
-                fontWeight: 700,
-                letterSpacing: ".1rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              Мира 54
-            </Typography>
-          </Box>
-
-          {/* === ЦЕНТРАЛЬНАЯ ЧАСТЬ (Приветствие) === */}
-          <Typography
-            variant="h6"
-            noWrap
-            component="p"
-            sx={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-
-              fontFamily: '"Roboto", sans-serif',
-              fontWeight: 400,
-              letterSpacing: ".05rem",
-              color: "inherit",
-              textDecoration: "none",
-
-              animation: "fadeInDown 1s ease-out forwards",
-              opacity: 0,
-              animationDelay: "0.3s",
-
-              display: { xs: "none", md: "flex" },
-            }}
-          >
-            Добро пожаловать
-          </Typography>
-        </Toolbar>
-      </Container>
+              Войти
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
     </AppBar>
   );
-};
+}
 
 export default Header;
