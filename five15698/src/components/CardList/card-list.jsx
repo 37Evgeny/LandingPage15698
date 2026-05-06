@@ -3,10 +3,51 @@ import Grow from "@mui/material/Grow";
 import CardItem from "../Card/card";
 import EmptyState from "../EmptyState/empty-state";
 
-// ✅ Принимаем и передаём isLoggedIn
-function CardList({ cardsAll, onDelete, onEdit, onAdd, isSearching, isLoggedIn }) {
+/**
+ * Компонент списка карточек.
+ *
+ * @param {object}   props
+ * @param {Array}    props.cardsAll          - массив карточек
+ * @param {function} props.onDelete          - удалить
+ * @param {function} props.onEdit            - редактировать
+ * @param {function} props.onView            - просмотр
+ * @param {function} props.onLike            - лайк
+ * @param {function} props.onToggleFav       - избранное
+ * @param {function} props.isFavorite        - проверить избранное
+ * @param {function} props.onAdd             - добавить (для EmptyState)
+ * @param {boolean}  props.isSearching       - активен ли поиск
+ * @param {boolean}  props.isFavoritesMode   - активен ли фильтр избранного
+ * @param {function} props.onClearFavorites  - сбросить фильтр избранного
+ * @param {boolean}  props.isLoggedIn        - авторизован ли пользователь
+ * @param {string}   props.currentUserId     - ID текущего пользователя
+ * @param {string}   props.currentRole       - роль текущего пользователя
+ */
+function CardList({
+  cardsAll,
+  onDelete,
+  onEdit,
+  onView,
+  onLike,
+  onToggleFav,
+  isFavorite,
+  onAdd,
+  isSearching,
+  isFavoritesMode,
+  onClearFavorites,
+  isLoggedIn,
+  currentUserId,
+  currentRole,
+}) {
+  // Пустой список — показываем нужную заглушку
   if (cardsAll.length === 0) {
-    return <EmptyState onAdd={onAdd} isSearching={isSearching} />;
+    return (
+      <EmptyState
+        onAdd={onAdd}
+        isSearching={isSearching}
+        isFavoritesMode={isFavoritesMode}
+        onClearFavorites={onClearFavorites}
+      />
+    );
   }
 
   return (
@@ -18,7 +59,13 @@ function CardList({ cardsAll, onDelete, onEdit, onAdd, isSearching, isLoggedIn }
               card={card}
               onDelete={onDelete}
               onEdit={onEdit}
-              isLoggedIn={isLoggedIn} // ✅
+              onView={onView}
+              onLike={onLike}
+              onToggleFav={onToggleFav}
+              isFavorite={isFavorite(card._id)}
+              isLoggedIn={isLoggedIn}
+              currentUserId={currentUserId}
+              currentRole={currentRole}
             />
           </Grid>
         </Grow>
