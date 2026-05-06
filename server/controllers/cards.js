@@ -1,6 +1,10 @@
 const Card = require('../models/card');
 
-/** Получить все карточки — публичный */
+/**
+ * Получить все карточки.
+ * GET /api/cards
+ * Публичный маршрут.
+ */
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find().populate('owner', 'name email role');
@@ -11,7 +15,36 @@ const getCards = async (req, res) => {
   }
 };
 
-/** Создать карточку — только авторизованные */
+/**
+ * Получить одну карточку по ID.
+ * GET /api/cards/:id
+ * Публичный маршрут.
+ *
+ * @param {object} req - req.params.id
+ * @param {object} res - карточка или 404
+ */
+const getCardById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const card = await Card.findById(id).populate('owner', 'name email role');
+
+    if (!card) {
+      return res.status(404).json({ message: 'Карточка не найдена' });
+    }
+
+    res.json(card);
+  } catch (err) {
+    console.error('Ошибка получения карточки:', err);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+};
+
+/**
+ * Создать карточку.
+ * POST /api/cards
+ * Только авторизованные.
+ */
 const createCard = async (req, res) => {
   try {
     const { name, pictures, description } = req.body;
@@ -35,7 +68,11 @@ const createCard = async (req, res) => {
   }
 };
 
-/** Обновить карточку — владелец или админ */
+/**
+ * Обновить карточку.
+ * PATCH /api/cards/:id
+ * Владелец или админ.
+ */
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
@@ -47,7 +84,8 @@ const updateCard = async (req, res) => {
     }
 
     const isAdmin = req.user.role === 'admin';
-    const isOwner = card.owner && card.owner.toString() === req.user._id.toString();
+    const isOwner =
+      card.owner && card.owner.toString() === req.user._id.toString();
 
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ message: 'Нет прав для редактирования' });
@@ -70,7 +108,11 @@ const updateCard = async (req, res) => {
   }
 };
 
-/** Удалить карточку — владелец или админ */
+/**
+ * Удалить карточку.
+ * DELETE /api/cards/:id
+ * Владелец или админ.
+ */
 const deleteCard = async (req, res) => {
   try {
     const { id } = req.params;
@@ -81,7 +123,8 @@ const deleteCard = async (req, res) => {
     }
 
     const isAdmin = req.user.role === 'admin';
-    const isOwner = card.owner && card.owner.toString() === req.user._id.toString();
+    const isOwner =
+      card.owner && card.owner.toString() === req.user._id.toString();
 
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ message: 'Нет прав для удаления' });
@@ -98,41 +141,34 @@ const deleteCard = async (req, res) => {
 /**
  * Переключить лайк на карточке.
  * PUT /api/cards/:id/likes
+ * Только авторизованные.
  *
- * Логика toggle:
- * - Если пользователь уже лайкнул → убираем лайк ($pull)
- * - Если ещё не лайкнул → добавляем лайк ($addToSet)
- *
- * $addToSet гарантирует уникальность — один юзер = один лайк.
- *
- * @param {object} req - req.user._id из JWT токена
- * @param {object} res - обновлённая карточка с полем likes
+ * Toggle логика:
+ * - уже лайкнул → $pull (убрать)
+ * - не лайкнул  → $addToSet (добавить уникально)
  */
 const toggleLike = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
 
-    // Проверяем существование карточки
     const card = await Card.findById(id);
     if (!card) {
       return res.status(404).json({ message: 'Карточка не найдена' });
     }
 
-    // Проверяем лайкнул ли уже этот пользователь
     const alreadyLiked = card.likes.some(
       (likeId) => likeId.toString() === userId.toString()
     );
 
-    // Toggle: если лайкнул — убираем, если нет — добавляем
     const updateQuery = alreadyLiked
-      ? { $pull: { likes: userId } }      // убрать лайк
-      : { $addToSet: { likes: userId } }; // добавить лайк (уникально)
+      ? { $pull: { likes: userId } }
+      : { $addToSet: { likes: userId } };
 
     const updatedCard = await Card.findByIdAndUpdate(
       id,
       updateQuery,
-      { new: true } // вернуть обновлённый документ
+      { new: true }
     ).populate('owner', 'name email role');
 
     res.json(updatedCard);
@@ -142,4 +178,12 @@ const toggleLike = async (req, res) => {
   }
 };
 
-module.exports = { getCards, createCard, updateCard, deleteCard, toggleLike };
+// ✅ ОДИН module.exports — все функции включены
+module.exports = {
+  getCards,
+  getCardById,
+  createCard,
+  updateCard,
+  deleteCard,
+  toggleLike,
+};
