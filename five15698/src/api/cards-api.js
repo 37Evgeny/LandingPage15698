@@ -1,47 +1,77 @@
-const BASE_URL = "http://127.0.0.1:4000/api/cards";
+/**
+ * @fileoverview HTTP клиент для CRUD операций с карточками.
+ * Автоматически добавляет JWT токен из localStorage в каждый запрос.
+ */
 
-// ✅ Получаем токен из localStorage
-const getToken = () => localStorage.getItem("token");
+/** Базовый URL для эндпоинтов карточек */
+const BASE_URL = 'http://localhost:4000/api/cards';
 
-const request = (endpoint, options = {}) => {
+/**
+ * Читает JWT токен из localStorage.
+ * @returns {string|null}
+ */
+const getToken = () => localStorage.getItem('token');
+
+/**
+ * Универсальная обёртка над fetch.
+ * Автоматически добавляет Authorization заголовок.
+ * Читает JSON тела ошибки и пробрасывает message от сервера.
+ *
+ * @param {string} endpoint
+ * @param {RequestInit} options
+ * @returns {Promise<any>}
+ */
+const request = async (endpoint, options = {}) => {
   const token = getToken();
 
-  return fetch(`${BASE_URL}${endpoint}`, {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       ...options.headers,
-      // ✅ Добавляем токен в каждый запрос
       ...(token && { Authorization: `Bearer ${token}` }),
     },
-  }).then((res) => {
-    if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
-    const contentType = res.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return res.json();
-    }
-    return res;
   });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(data.message || `Ошибка сервера: ${res.status}`);
+  }
+
+  return data;
 };
 
 export const cardsApi = {
-  getAll: () => request("/"),
+  /** GET /api/cards — все карточки */
+  getAll: () => request('/'),
 
+  /** POST /api/cards — создать карточку */
   create: (cardData) =>
-    request("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    request('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardData),
     }),
 
+  /** PATCH /api/cards/:id — обновить карточку */
   update: (id, cardData) =>
     request(`/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardData),
     }),
 
+  /** DELETE /api/cards/:id — удалить карточку */
   remove: (id) =>
-    request(`/${id}`, {
-      method: "DELETE",
-    }),
+    request(`/${id}`, { method: 'DELETE' }),
+
+  /**
+   * PUT /api/cards/:id/likes — переключить лайк.
+   * Сервер сам определяет добавить или убрать лайк.
+   *
+   * @param {string} id - ID карточки
+   * @returns {Promise<object>} - обновлённая карточка с актуальным likes[]
+   */
+  toggleLike: (id) =>
+    request(`/${id}/likes`, { method: 'PUT' }),
 };

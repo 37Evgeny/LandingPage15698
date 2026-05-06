@@ -1,19 +1,41 @@
 import { useEffect, useState } from "react";
 import { authApi } from "../api/auth-api";
 
+/**
+ * Хук управления авторизацией пользователя.
+ *
+ * Отвечает за:
+ * - Проверку JWT токена при загрузке страницы через getMe
+ * - Хранение данных текущего пользователя в состоянии
+ * - Методы регистрации, входа и выхода
+ *
+ * @param {object} params
+ * @param {function} params.onSuccess - колбэк для успешных уведомлений
+ * @param {function} params.onError - колбэк для уведомлений об ошибках
+ * @returns {object} - состояние и методы авторизации
+ */
 function useAuth({ onSuccess, onError }) {
+  /** Данные текущего пользователя или null если не авторизован */
   const [currentUser, setCurrentUser] = useState(null);
+
+  /** true пока идёт проверка токена при старте страницы */
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  /** Флаг авторизации — производный от currentUser */
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ✅ Проверяем токен при загрузке
+  // ─── Проверка токена при загрузке страницы ─────────────────
   useEffect(() => {
+    // Читаем токен — ключ "token" совпадает с cards-api.js
     const token = localStorage.getItem("token");
+
     if (!token) {
+      // Токена нет — пользователь не авторизован
       setIsAuthLoading(false);
       return;
     }
 
+    // Токен есть — проверяем его валидность на сервере
     authApi
       .getMe(token)
       .then((user) => {
@@ -21,37 +43,62 @@ function useAuth({ onSuccess, onError }) {
         setIsLoggedIn(true);
       })
       .catch(() => {
-        // Токен невалидный — чистим
+        // Токен невалидный или истёк — чистим хранилище
         localStorage.removeItem("token");
+        setCurrentUser(null);
+        setIsLoggedIn(false);
       })
-      .finally(() => setIsAuthLoading(false));
-  }, []);
+      .finally(() => {
+        setIsAuthLoading(false);
+      });
+  }, []); // Запускается один раз при монтировании
 
-  // Регистрация
+  // ─── Регистрация ───────────────────────────────────────────
+  /**
+   * Регистрирует нового пользователя.
+   * После успешной регистрации автоматически выполняет вход.
+   * При ошибке 409 — показывает "Email уже занят".
+   *
+   * @param {{ name: string, email: string, password: string }} formData
+   * @returns {Promise<void>}
+   * @throws {Error} - пробрасывает ошибку для обработки в компоненте
+   */
   const handleRegister = (formData) => {
     return authApi
       .register(formData)
       .then(() => {
-        // После регистрации сразу логиним
+        // Регистрация успешна — сразу логиним
         return authApi.login({
           email: formData.email,
           password: formData.password,
         });
       })
       .then((data) => {
+        // Сохраняем токен и обновляем состояние
         localStorage.setItem("token", data.token);
         setCurrentUser(data.user);
         setIsLoggedIn(true);
-        onSuccess("Добро пожаловать! 🎉");
+        onSuccess(`Добро пожаловать, ${data.user.name}! 🎉`);
       })
       .catch((err) => {
         console.error("Ошибка регистрации:", err);
-        onError("Ошибка регистрации. Попробуйте снова");
-        throw err;
+        // ✅ ИСПРАВЛЕНО: err.message содержит текст от сервера
+        // Например: "Пользователь с таким email уже существует"
+        // вместо общего "Ошибка регистрации. Попробуйте снова"
+        onError(err.message);
+        throw err; // Пробрасываем чтобы диалог не закрылся
       });
   };
 
-  // Вход
+  // ─── Вход ──────────────────────────────────────────────────
+  /**
+   * Выполняет вход пользователя по email и паролю.
+   * Сохраняет JWT токен в localStorage под ключом "token".
+   *
+   * @param {{ email: string, password: string }} formData
+   * @returns {Promise<void>}
+   * @throws {Error} - пробрасывает ошибку для обработки в компоненте
+   */
   const handleLogin = (formData) => {
     return authApi
       .login(formData)
@@ -59,16 +106,21 @@ function useAuth({ onSuccess, onError }) {
         localStorage.setItem("token", data.token);
         setCurrentUser(data.user);
         setIsLoggedIn(true);
-        onSuccess(`С возвращением! 👋`);
+        onSuccess(`С возвращением, ${data.user.name}! 👋`);
       })
       .catch((err) => {
         console.error("Ошибка входа:", err);
-        onError("Неверный email или пароль");
+        // ✅ ИСПРАВЛЕНО: показываем точное сообщение от сервера
+        onError(err.message);
         throw err;
       });
   };
 
-  // Выход
+  // ─── Выход ─────────────────────────────────────────────────
+  /**
+   * Выполняет выход пользователя.
+   * Удаляет токен из localStorage и сбрасывает состояние.
+   */
   const handleLogout = () => {
     localStorage.removeItem("token");
     setCurrentUser(null);
@@ -77,12 +129,12 @@ function useAuth({ onSuccess, onError }) {
   };
 
   return {
-    currentUser,
-    isAuthLoading,
-    isLoggedIn,
-    handleRegister,
-    handleLogin,
-    handleLogout,
+    currentUser,    // Объект пользователя { _id, name, email, role } или null
+    isAuthLoading,  // true пока проверяем токен при старте
+    isLoggedIn,     // true если пользователь авторизован
+    handleRegister, // Функция регистрации
+    handleLogin,    // Функция входа
+    handleLogout,   // Функция выхода
   };
 }
 

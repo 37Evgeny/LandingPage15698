@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Схема карточки.
+ * Добавлено поле likes — массив ID пользователей которые лайкнули.
+ */
 const cardSchema = new mongoose.Schema(
   {
     name: {
@@ -17,12 +21,22 @@ const cardSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
-    // ✅ Владелец карточки — необязательный для совместимости
+    /** Владелец карточки — ссылка на User */
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: false,
       default: null,
+    },
+    /**
+     * Массив ID пользователей которые лайкнули карточку.
+     * Каждый пользователь может лайкнуть только один раз.
+     * Повторный PUT — убирает лайк (toggle).
+     */
+    likes: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
     },
   },
   { timestamps: true }

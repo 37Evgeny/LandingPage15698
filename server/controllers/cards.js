@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 
-// ✅ Получить все карточки — публичный
+/** Получить все карточки — публичный */
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find().populate('owner', 'name email role');
@@ -11,7 +11,7 @@ const getCards = async (req, res) => {
   }
 };
 
-// ✅ Создать карточку — только авторизованные
+/** Создать карточку — только авторизованные */
 const createCard = async (req, res) => {
   try {
     const { name, pictures, description } = req.body;
@@ -20,7 +20,7 @@ const createCard = async (req, res) => {
       name,
       pictures,
       description,
-      owner: req.user._id, // ✅ Привязываем к пользователю
+      owner: req.user._id,
     });
 
     const populatedCard = await card.populate('owner', 'name email role');
@@ -35,7 +35,7 @@ const createCard = async (req, res) => {
   }
 };
 
-// ✅ Обновить карточку — владелец или админ
+/** Обновить карточку — владелец или админ */
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,10 +46,8 @@ const updateCard = async (req, res) => {
       return res.status(404).json({ message: 'Карточка не найдена' });
     }
 
-    // ✅ Админ может редактировать любую карточку
     const isAdmin = req.user.role === 'admin';
-    const isOwner =
-      card.owner && card.owner.toString() === req.user._id.toString();
+    const isOwner = card.owner && card.owner.toString() === req.user._id.toString();
 
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ message: 'Нет прав для редактирования' });
@@ -72,7 +70,7 @@ const updateCard = async (req, res) => {
   }
 };
 
-// ✅ Удалить карточку — владелец или админ
+/** Удалить карточку — владелец или админ */
 const deleteCard = async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,10 +80,8 @@ const deleteCard = async (req, res) => {
       return res.status(404).json({ message: 'Карточка не найдена' });
     }
 
-    // ✅ Админ может удалять любую карточку
     const isAdmin = req.user.role === 'admin';
-    const isOwner =
-      card.owner && card.owner.toString() === req.user._id.toString();
+    const isOwner = card.owner && card.owner.toString() === req.user._id.toString();
 
     if (!isAdmin && !isOwner) {
       return res.status(403).json({ message: 'Нет прав для удаления' });
@@ -99,4 +95,51 @@ const deleteCard = async (req, res) => {
   }
 };
 
-module.exports = { getCards, createCard, updateCard, deleteCard };
+/**
+ * Переключить лайк на карточке.
+ * PUT /api/cards/:id/likes
+ *
+ * Логика toggle:
+ * - Если пользователь уже лайкнул → убираем лайк ($pull)
+ * - Если ещё не лайкнул → добавляем лайк ($addToSet)
+ *
+ * $addToSet гарантирует уникальность — один юзер = один лайк.
+ *
+ * @param {object} req - req.user._id из JWT токена
+ * @param {object} res - обновлённая карточка с полем likes
+ */
+const toggleLike = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    // Проверяем существование карточки
+    const card = await Card.findById(id);
+    if (!card) {
+      return res.status(404).json({ message: 'Карточка не найдена' });
+    }
+
+    // Проверяем лайкнул ли уже этот пользователь
+    const alreadyLiked = card.likes.some(
+      (likeId) => likeId.toString() === userId.toString()
+    );
+
+    // Toggle: если лайкнул — убираем, если нет — добавляем
+    const updateQuery = alreadyLiked
+      ? { $pull: { likes: userId } }      // убрать лайк
+      : { $addToSet: { likes: userId } }; // добавить лайк (уникально)
+
+    const updatedCard = await Card.findByIdAndUpdate(
+      id,
+      updateQuery,
+      { new: true } // вернуть обновлённый документ
+    ).populate('owner', 'name email role');
+
+    res.json(updatedCard);
+  } catch (err) {
+    console.error('Ошибка лайка:', err);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+};
+
+module.exports = { getCards, createCard, updateCard, deleteCard, toggleLike };
