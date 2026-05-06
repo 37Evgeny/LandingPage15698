@@ -43,14 +43,19 @@ function App() {
 
   // ─── Карточки ────────────────────────────────────────────────
   const {
-    cards,
-    isLoading,
-    error,
-    handleAdd,
-    handleEdit,
-    handleDelete,
-    handleLike,
-  } = useCards({ onSuccess: showSuccess, onError: showError });
+  cards,
+  isLoading,
+  isLoadingMore,  // ✅ новый
+  error,
+  hasMore,        // ✅ новый
+  total,          // ✅ новый
+  loadMore,       // ✅ новый
+  handleAdd,
+  handleEdit,
+  handleDelete,
+  handleLike,
+} = useCards({ onSuccess: showSuccess, onError: showError });
+
 
   // ─── Диалоги ─────────────────────────────────────────────────
 
@@ -138,16 +143,20 @@ function App() {
             element={
               <CardsPage
                 cards={cards}
-                isLoading={isLoading}
-                isAuthLoading={isAuthLoading}
-                error={error}
-                onAdd={handleOpenCreate}
-                onEdit={handleOpenEdit}
-                onDelete={handleOpenConfirm}
-                onLike={handleLikeClick}
-                isLoggedIn={isLoggedIn}
-                currentUserId={currentUser?._id}
-                currentRole={currentUser?.role}
+      isLoading={isLoading}
+      isAuthLoading={isAuthLoading}
+      isLoadingMore={isLoadingMore}   // ✅
+      error={error}
+      hasMore={hasMore}               // ✅
+      total={total}                   // ✅
+      onLoadMore={loadMore}           // ✅
+      onAdd={handleOpenCreate}
+      onEdit={handleOpenEdit}
+      onDelete={handleOpenConfirm}
+      onLike={handleLikeClick}
+      isLoggedIn={isLoggedIn}
+      currentUserId={currentUser?._id}
+      currentRole={currentUser?.role}
               />
             }
           />
