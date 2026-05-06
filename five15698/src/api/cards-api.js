@@ -43,35 +43,36 @@ const request = async (endpoint, options = {}) => {
 
 export const cardsApi = {
   /** GET /api/cards — все карточки */
-  getAll: () => request('/'),
-
-  /** POST /api/cards — создать карточку */
-  create: (cardData) =>
-    request('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cardData),
-    }),
-
-  /** PATCH /api/cards/:id — обновить карточку */
-  update: (id, cardData) =>
-    request(`/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cardData),
-    }),
-
-  /** DELETE /api/cards/:id — удалить карточку */
-  remove: (id) =>
-    request(`/${id}`, { method: 'DELETE' }),
+  getAll: () => request("/"),
 
   /**
-   * PUT /api/cards/:id/likes — переключить лайк.
-   * Сервер сам определяет добавить или убрать лайк.
+   * GET /api/cards/:id — одна карточка по ID.
+   * Используется на детальной странице /cards/:id.
    *
-   * @param {string} id - ID карточки
-   * @returns {Promise<object>} - обновлённая карточка с актуальным likes[]
+   * @param {string} id - MongoDB ObjectId
+   * @returns {Promise<object>} - карточка с populate owner
    */
-  toggleLike: (id) =>
-    request(`/${id}/likes`, { method: 'PUT' }),
+  getById: (id) => request(`/${id}`),
+
+  /** POST /api/cards */
+  create: (cardData) =>
+    request("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cardData),
+    }),
+
+  /** PATCH /api/cards/:id */
+  update: (id, cardData) =>
+    request(`/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cardData),
+    }),
+
+  /** DELETE /api/cards/:id */
+  remove: (id) => request(`/${id}`, { method: "DELETE" }),
+
+  /** PUT /api/cards/:id/likes */
+  toggleLike: (id) => request(`/${id}/likes`, { method: "PUT" }),
 };
