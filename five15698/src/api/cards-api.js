@@ -15,7 +15,6 @@ const getToken = () => localStorage.getItem('token');
 /**
  * Универсальная обёртка над fetch.
  * Автоматически добавляет Authorization заголовок.
- * Читает JSON тела ошибки и пробрасывает message от сервера.
  *
  * @param {string} endpoint
  * @param {RequestInit} options
@@ -42,37 +41,61 @@ const request = async (endpoint, options = {}) => {
 };
 
 export const cardsApi = {
-  /** GET /api/cards — все карточки */
-  getAll: () => request("/"),
+  /**
+   * GET /api/cards?page=1&limit=12
+   * Возвращает объект с пагинацией.
+   *
+   * @param {number} page  - номер страницы
+   * @param {number} limit - карточек на странице
+   * @returns {Promise<{
+   *   cards: Array,
+   *   total: number,
+   *   page: number,
+   *   totalPages: number,
+   *   hasMore: boolean
+   * }>}
+   */
+  getAll: (page = 1, limit = 12) =>
+    request(`/?page=${page}&limit=${limit}`),
 
   /**
    * GET /api/cards/:id — одна карточка по ID.
-   * Используется на детальной странице /cards/:id.
-   *
-   * @param {string} id - MongoDB ObjectId
-   * @returns {Promise<object>} - карточка с populate owner
+   * @param {string} id
    */
   getById: (id) => request(`/${id}`),
 
-  /** POST /api/cards */
+  /**
+   * POST /api/cards — создать карточку.
+   * @param {{ name: string, pictures: string, description: string }} cardData
+   */
   create: (cardData) =>
-    request("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    request('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardData),
     }),
 
-  /** PATCH /api/cards/:id */
+  /**
+   * PATCH /api/cards/:id — обновить карточку.
+   * @param {string} id
+   * @param {object} cardData
+   */
   update: (id, cardData) =>
     request(`/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardData),
     }),
 
-  /** DELETE /api/cards/:id */
-  remove: (id) => request(`/${id}`, { method: "DELETE" }),
+  /**
+   * DELETE /api/cards/:id — удалить карточку.
+   * @param {string} id
+   */
+  remove: (id) => request(`/${id}`, { method: 'DELETE' }),
 
-  /** PUT /api/cards/:id/likes */
-  toggleLike: (id) => request(`/${id}/likes`, { method: "PUT" }),
+  /**
+   * PUT /api/cards/:id/likes — toggle лайк.
+   * @param {string} id
+   */
+  toggleLike: (id) => request(`/${id}/likes`, { method: 'PUT' }),
 };
