@@ -8,20 +8,23 @@ import useSearch from "../../hooks/useSearch.js";
 
 import CardList from "../../components/CardList/card-list.jsx";
 import FavoritesFilter from "../../components/FavoritesFilter/favorites-filter.jsx";
+import LoadMore from "../../components/LoadMore/load-more.jsx";
 import SearchBar from "../../components/SearchBar/search-bar.jsx";
 import SkeletonList from "../../components/SkeletonCard/skeleton-list.jsx";
 import SortBar from "../../components/SortBar/sort-bar.jsx";
 
 /**
  * Страница списка карточек — маршрут /cards.
- * Получает данные и обработчики из App через пропсы.
- * Не содержит собственного состояния — только UI.
  *
  * @param {object}   props
- * @param {Array}    props.cards          - все карточки
- * @param {boolean}  props.isLoading      - загрузка карточек
- * @param {boolean}  props.isAuthLoading  - загрузка авторизации
+ * @param {Array}    props.cards          - загруженные карточки
+ * @param {boolean}  props.isLoading      - первичная загрузка
+ * @param {boolean}  props.isAuthLoading  - проверка токена
+ * @param {boolean}  props.isLoadingMore  - загрузка следующей страницы
  * @param {string}   props.error          - ошибка загрузки
+ * @param {boolean}  props.hasMore        - есть ли ещё карточки
+ * @param {number}   props.total          - всего карточек в БД
+ * @param {function} props.onLoadMore     - загрузить следующую страницу
  * @param {function} props.onAdd          - открыть диалог добавления
  * @param {function} props.onEdit         - открыть диалог редактирования
  * @param {function} props.onDelete       - открыть диалог удаления
@@ -34,7 +37,11 @@ const CardsPage = ({
   cards,
   isLoading,
   isAuthLoading,
+  isLoadingMore,
   error,
+  hasMore,
+  total,
+  onLoadMore,
   onAdd,
   onEdit,
   onDelete,
@@ -43,13 +50,10 @@ const CardsPage = ({
   currentUserId,
   currentRole,
 }) => {
-  /** Навигация — для перехода на детальную страницу */
   const navigate = useNavigate();
 
-  /** Хук избранного */
   const { toggleFavorite, isFavorite, favoritesCount } = useFavorites();
 
-  /** Хук поиска и сортировки */
   const {
     searchQuery,
     setSearchQuery,
@@ -62,18 +66,15 @@ const CardsPage = ({
     filteredCount,
   } = useSearch(cards, isFavorite);
 
-  /**
-   * Переход на детальную страницу карточки.
-   * @param {object} card - карточка
-   */
   const handleViewCard = (card) => {
     navigate(`/cards/${card._id}`);
   };
 
   // ── Рендер контента ────────────────────────────────────────
   const renderContent = () => {
+    // Первичная загрузка — скелетоны
     if (isAuthLoading || isLoading) {
-      return <SkeletonList count={8} />;
+      return <SkeletonList count={12} />;
     }
 
     if (error) {
@@ -85,22 +86,39 @@ const CardsPage = ({
     }
 
     return (
-      <CardList
-        cardsAll={filteredCards}
-        onDelete={onDelete}
-        onEdit={onEdit}
-        onView={handleViewCard}
-        onLike={onLike}
-        onToggleFav={toggleFavorite}
-        isFavorite={isFavorite}
-        onAdd={onAdd}
-        isSearching={!!searchQuery.trim()}
-        isFavoritesMode={showFavoritesOnly}
-        onClearFavorites={() => setShowFavoritesOnly(false)}
-        isLoggedIn={isLoggedIn}
-        currentUserId={currentUserId}
-        currentRole={currentRole}
-      />
+      <>
+        <CardList
+          cardsAll={filteredCards}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onView={handleViewCard}
+          onLike={onLike}
+          onToggleFav={toggleFavorite}
+          isFavorite={isFavorite}
+          onAdd={onAdd}
+          isSearching={!!searchQuery.trim()}
+          isFavoritesMode={showFavoritesOnly}
+          onClearFavorites={() => setShowFavoritesOnly(false)}
+          isLoggedIn={isLoggedIn}
+          currentUserId={currentUserId}
+          currentRole={currentRole}
+        />
+
+        {/*
+          Кнопка "Загрузить ещё" показывается только:
+          - когда не активен поиск (ищем по уже загруженным)
+          - когда не активен фильтр избранного
+        */}
+        {!searchQuery.trim() && !showFavoritesOnly && (
+          <LoadMore
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={onLoadMore}
+            loadedCount={cards.length}
+            total={total}
+          />
+        )}
+      </>
     );
   };
 
