@@ -1,14 +1,36 @@
 const Card = require('../models/card');
 
 /**
- * Получить все карточки.
- * GET /api/cards
- * Публичный маршрут.
+ * Получить все карточки с пагинацией.
+ * GET /api/cards?page=1&limit=12
+ *
+ * @param {object} req - req.query.page, req.query.limit
+ * @param {object} res - { cards, total, page, totalPages, hasMore }
  */
 const getCards = async (req, res) => {
   try {
-    const cards = await Card.find().populate('owner', 'name email role');
-    res.json(cards);
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 12);
+    const skip  = (page - 1) * limit;
+
+    const [total, cards] = await Promise.all([
+      Card.countDocuments(),
+      Card.find()
+        .populate('owner', 'name email role')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      cards,
+      total,
+      page,
+      totalPages,
+      hasMore: page < totalPages,
+    });
   } catch (err) {
     console.error('Ошибка получения карточек:', err);
     res.status(500).json({ message: 'Ошибка сервера' });
@@ -27,7 +49,8 @@ const getCardById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const card = await Card.findById(id).populate('owner', 'name email role');
+    const card = await Card.findById(id)
+      .populate('owner', 'name email role');
 
     if (!card) {
       return res.status(404).json({ message: 'Карточка не найдена' });
@@ -44,6 +67,9 @@ const getCardById = async (req, res) => {
  * Создать карточку.
  * POST /api/cards
  * Только авторизованные.
+ *
+ * @param {object} req - req.body { name, pictures, description }, req.user._id
+ * @param {object} res - созданная карточка с populate owner
  */
 const createCard = async (req, res) => {
   try {
@@ -72,6 +98,9 @@ const createCard = async (req, res) => {
  * Обновить карточку.
  * PATCH /api/cards/:id
  * Владелец или админ.
+ *
+ * @param {object} req - req.params.id, req.body, req.user
+ * @param {object} res - обновлённая карточка или ошибка
  */
 const updateCard = async (req, res) => {
   try {
@@ -112,6 +141,9 @@ const updateCard = async (req, res) => {
  * Удалить карточку.
  * DELETE /api/cards/:id
  * Владелец или админ.
+ *
+ * @param {object} req - req.params.id, req.user
+ * @param {object} res - { message, id }
  */
 const deleteCard = async (req, res) => {
   try {
@@ -146,6 +178,9 @@ const deleteCard = async (req, res) => {
  * Toggle логика:
  * - уже лайкнул → $pull (убрать)
  * - не лайкнул  → $addToSet (добавить уникально)
+ *
+ * @param {object} req - req.params.id, req.user._id
+ * @param {object} res - обновлённая карточка с актуальным likes[]
  */
 const toggleLike = async (req, res) => {
   try {
@@ -162,7 +197,7 @@ const toggleLike = async (req, res) => {
     );
 
     const updateQuery = alreadyLiked
-      ? { $pull: { likes: userId } }
+      ? { $pull:    { likes: userId } }
       : { $addToSet: { likes: userId } };
 
     const updatedCard = await Card.findByIdAndUpdate(
@@ -178,7 +213,7 @@ const toggleLike = async (req, res) => {
   }
 };
 
-// ✅ ОДИН module.exports — все функции включены
+// ✅ Один module.exports — все шесть функций
 module.exports = {
   getCards,
   getCardById,

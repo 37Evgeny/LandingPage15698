@@ -2,31 +2,27 @@ const router = require('express').Router();
 const authMiddleware = require('../middlewares/auth');
 const {
   getCards,
-  getCardById,  // ✅ добавлен
+  getCardById,
   createCard,
   updateCard,
   deleteCard,
   toggleLike,
 } = require('../controllers/cards');
 
-/** GET /api/cards — все карточки (публичный) */
+/** GET /api/cards?page=1&limit=12 — все карточки с пагинацией (публичный) */
 router.get('/', getCards);
 
-/**
- * GET /api/cards/:id — одна карточка (публичный).
- * Должен быть ПОСЛЕ PUT /:id/likes и ПОСЛЕ GET /
- * чтобы не перехватывал другие маршруты.
- */
-router.get('/:id', getCardById);
+/** POST /api/cards — создать карточку (авторизованный) */
+router.post('/', authMiddleware, createCard);
 
 /**
  * PUT /api/cards/:id/likes — toggle лайк (авторизованный).
- * Должен быть ДО GET /:id и PATCH /:id
+ * Стоит ДО GET /:id — иначе Express примет "likes" как id.
  */
 router.put('/:id/likes', authMiddleware, toggleLike);
 
-/** POST /api/cards — создать (авторизованный) */
-router.post('/', authMiddleware, createCard);
+/** GET /api/cards/:id — одна карточка (публичный) */
+router.get('/:id', getCardById);
 
 /** PATCH /api/cards/:id — обновить (владелец или админ) */
 router.patch('/:id', authMiddleware, updateCard);
